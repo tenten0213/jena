@@ -37,8 +37,6 @@ require 'ostruct'
 SOH_NAME="SOH"
 SOH_VERSION="0.0.0"
 
-$proxy = ENV['http_proxy'] ? URI.parse(ENV['http_proxy']) : OpenStruct.new  
-
 # What about direct naming?
 
 # Names
@@ -401,6 +399,17 @@ def cmd_soh(command=nil)
   end
 
   dataset=parseURI(ARGV.shift)
+
+  if ENV['http_proxy']
+    unless ENV['no_proxy']
+      $proxy = URI.parse(ENV['http_proxy'])
+    else
+      $proxy = (ENV['no_proxy'].split(',').include? URI(dataset).host) ? OpenStruct.new : URI.parse(ENV['http_proxy'])
+    end
+  else
+    $proxy = OpenStruct.new
+  end
+
   # Relative URI?
   graph=parseURI(ARGV.shift)
   file=""
